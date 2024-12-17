@@ -7,10 +7,43 @@ let zones = [
 ]
 
 // URL des ESP32-Servers (Anpassen mit der tatsächlichen IP-Adresse des ESP32)
-const ESP32_URL = 'http://192.168.178.145/updateZones' 
+const ESP32_URL = 'http://192.168.178.145/updateZones'
+const ESP32_URL_GETZONES = 'http://192.168.178.145/zones'  
 
 export async function GET() {
-  return NextResponse.json(zones)
+  try {
+    // Anfrage an den ESP32 senden
+    const response = await fetch(ESP32_URL_GETZONES, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch zones from ESP32. Status: ${response.status}`)
+    }
+
+    // Zonen vom ESP32 abrufen und zurückgeben
+    const esp32Zones = await response.json()
+    console.log('Zones fetched from ESP32:', esp32Zones)
+
+    return NextResponse.json(esp32Zones)
+
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error('Error fetching zones from ESP32:', errorMessage)
+
+    // Wenn die ESP32-Anfrage fehlschlägt, geben wir die lokal gespeicherten Zonen zurück
+    return NextResponse.json(
+      { 
+        message: 'Failed to fetch zones from ESP32. Returning local zones.',
+        error: errorMessage,
+        zones 
+      },
+      { status: 500 }
+    )
+  }
 }
 
 export async function POST(request: Request) {
@@ -21,10 +54,10 @@ export async function POST(request: Request) {
 
   // Validate and constrain zone coordinates
   zones = zones.map(zone => ({
-    x1: Math.max(-4000, Math.min(4000, zone.x1)),
-    y1: Math.max(1, Math.min(8000, zone.y1)),
-    x2: Math.max(-4000, Math.min(4000, zone.x2)),
-    y2: Math.max(1, Math.min(8000, zone.y2))
+    x1: Math.round(Math.max(-4000, Math.min(4000, zone.x1))),
+    y1: Math.round(Math.max(1, Math.min(8000, zone.y1))),
+    x2: Math.round(Math.max(-4000, Math.min(4000, zone.x2))),
+    y2: Math.round(Math.max(1, Math.min(8000, zone.y2)))
   }))
 
   try {

@@ -116,6 +116,27 @@ void setup()
       request->send(200, "application/json", "{\"status\":\"success\",\"message\":\"Zones updated\"}");
     });
 
+    // Handle GET request for zones
+  server.on("/zones", HTTP_GET, [](AsyncWebServerRequest *request){
+    StaticJsonDocument<512> doc;
+    
+    // Serialize zones into JSON array
+    JsonArray zonesArray = doc.to<JsonArray>();
+    for (int i = 0; i < 3; i++) {
+      JsonObject zone = zonesArray.createNestedObject();
+      zone["x1"] = zones[i].x1;
+      zone["y1"] = zones[i].y1;
+      zone["x2"] = zones[i].x2;
+      zone["y2"] = zones[i].y2;
+    }
+
+    String jsonResponse;
+    serializeJson(doc, jsonResponse);
+
+    // Send JSON response
+    request->send(200, "application/json", jsonResponse);
+  });
+
   // Server starten
   server.begin();
   Serial.println("HTTP-Server gestartet.");

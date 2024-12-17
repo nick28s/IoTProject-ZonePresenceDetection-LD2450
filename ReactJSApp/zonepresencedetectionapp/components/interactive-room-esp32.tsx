@@ -29,41 +29,65 @@ const MoveableResizableZone = ({ zone, onResize, onMove, onDelete, isEditMode, r
   roomHeight: number
 }) => {
   const zoneRef = useRef<HTMLDivElement>(null)
-  const resizeRef = useRef<HTMLDivElement>(null)
+  const resizeRefs = {
+    top: useRef<HTMLDivElement>(null),
+    right: useRef<HTMLDivElement>(null),
+    bottom: useRef<HTMLDivElement>(null),
+    left: useRef<HTMLDivElement>(null),
+  }
   const moveRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const zoneEl = zoneRef.current
-    const resizeEl = resizeRef.current
     const moveEl = moveRef.current
-    if (!zoneEl || !resizeEl || !moveEl) return
+    if (!zoneEl || !moveEl) return
 
     let isResizing = false
     let isMoving = false
     let startX: number, startY: number, startWidth: number, startHeight: number, startLeft: number, startTop: number
 
-    const startResize = (e: MouseEvent | TouchEvent) => {
+    const startResize = (e: MouseEvent | TouchEvent, direction: string) => {
       e.stopPropagation()
       isResizing = true
       startX = 'touches' in e ? e.touches[0].clientX : e.clientX
       startY = 'touches' in e ? e.touches[0].clientY : e.clientY
       startWidth = zoneEl.offsetWidth
       startHeight = zoneEl.offsetHeight
-      document.addEventListener('mousemove', resize)
-      document.addEventListener('touchmove', resize)
+      const resizeHandler = (event: MouseEvent | TouchEvent) => resize(event, direction)
+      document.addEventListener('mousemove', resizeHandler)
+      document.addEventListener('touchmove', resizeHandler)
       document.addEventListener('mouseup', stopResize)
       document.addEventListener('touchend', stopResize)
     }
 
-    const resize = (e: MouseEvent | TouchEvent) => {
+    const resize = (e: MouseEvent | TouchEvent, direction: string) => {
       if (!isResizing) return
       const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
-      const width = Math.max(20, startWidth + clientX - startX)
-      const height = Math.max(20, startHeight + (startY - clientY)) // Invert the y-axis for resizing
-      const x2 = Math.max(-4000, Math.min(4000, zone.x1 + mapCoordinate(width, 0, roomWidth, 0, 8000)))
-      const y2 = Math.max(1, Math.min(8000, zone.y1 - mapCoordinate(height, 0, roomHeight, 0, 8000)))
-      onResize(zone.id, zone.x1, zone.y1, x2, y2)
+      let width = startWidth
+      let height = startHeight
+      let x1 = zone.x1
+      let y1 = zone.y1
+      let x2 = zone.x2
+      let y2 = zone.y2
+
+      if (direction === 'right') {
+        width = Math.max(20, startWidth + clientX - startX)
+        x2 = Math.max(-4000, Math.min(4000, zone.x1 + mapCoordinate(width, 0, roomWidth, 0, 8000)))
+      } else if (direction === 'left') {
+        width = Math.max(20, startWidth - (clientX - startX))
+        x1 = Math.max(-4000, Math.min(4000, zone.x2 - mapCoordinate(width, 0, roomWidth, 0, 8000)))
+      }
+
+      if (direction === 'top') {
+        height = Math.max(20, startHeight + startY - clientY)
+        y2 = Math.max(1, Math.min(8000, zone.y1 + mapCoordinate(height, 0, roomHeight, 0, 8000)))
+      } else if (direction === 'bottom') {
+        height = Math.max(20, startHeight - (startY - clientY))
+        y1 = Math.max(1, Math.min(8000, zone.y2 - mapCoordinate(height, 0, roomHeight, 0, 8000)))
+      }
+
+      onResize(zone.id, x1, y1, x2, y2)
     }
 
     const stopResize = () => {
@@ -111,15 +135,25 @@ const MoveableResizableZone = ({ zone, onResize, onMove, onDelete, isEditMode, r
     }
 
     if (isEditMode) {
-      resizeEl.addEventListener('mousedown', startResize)
-      resizeEl.addEventListener('touchstart', startResize)
+      Object.keys(resizeRefs).forEach((direction) => {
+        const ref = resizeRefs[direction as keyof typeof resizeRefs].current
+        if (ref) {
+          ref.addEventListener('mousedown', (e) => startResize(e, direction))
+          ref.addEventListener('touchstart', (e) => startResize(e, direction))
+        }
+      })
       moveEl.addEventListener('mousedown', startMove)
       moveEl.addEventListener('touchstart', startMove)
     }
 
     return () => {
-      resizeEl.removeEventListener('mousedown', startResize)
-      resizeEl.removeEventListener('touchstart', startResize)
+      Object.keys(resizeRefs).forEach((direction) => {
+        const ref = resizeRefs[direction as keyof typeof resizeRefs].current
+        if (ref) {
+          ref.removeEventListener('mousedown', (e) => startResize(e, direction))
+          ref.removeEventListener('touchstart', (e) => startResize(e, direction))
+        }
+      })
       moveEl.removeEventListener('mousedown', startMove)
       moveEl.removeEventListener('touchstart', startMove)
     }
@@ -144,17 +178,30 @@ const MoveableResizableZone = ({ zone, onResize, onMove, onDelete, isEditMode, r
       style={zoneStyle}
       onClick={(e) => e.stopPropagation()}
     >
+      <div className="absolute top-0 left-0 bg-white text-xs px-1">{zone.id}</div>
       {isEditMode && (
         <>
           <div
             ref={moveRef}
-            className="absolute top-0 left-0 w-6 h-6 bg-white border-2 border-gray-400 cursor-move flex items-center justify-center"
+            className="absolute top-1/2 left-1/2 w-6 h-6 bg-white border-2 border-gray-400 cursor-move flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2"
           >
             <Move className="w-4 h-4 text-gray-600" />
           </div>
           <div
-            ref={resizeRef}
-            className="absolute bottom-0 right-0 w-4 h-4 bg-white border-2 border-gray-400 cursor-se-resize"
+            ref={resizeRefs.top}
+            className="absolute top-0 left-1/2 w-4 h-4 bg-white border-2 border-gray-400 cursor-n-resize transform -translate-x-1/2"
+          />
+          <div
+            ref={resizeRefs.right}
+            className="absolute top-1/2 right-0 w-4 h-4 bg-white border-2 border-gray-400 cursor-e-resize transform -translate-y-1/2"
+          />
+          <div
+            ref={resizeRefs.bottom}
+            className="absolute bottom-0 left-1/2 w-4 h-4 bg-white border-2 border-gray-400 cursor-s-resize transform -translate-x-1/2"
+          />
+          <div
+            ref={resizeRefs.left}
+            className="absolute top-1/2 left-0 w-4 h-4 bg-white border-2 border-gray-400 cursor-w-resize transform -translate-y-1/2"
           />
           <Button
             variant="ghost"
@@ -172,7 +219,7 @@ const MoveableResizableZone = ({ zone, onResize, onMove, onDelete, isEditMode, r
 
 export function InteractiveRoomEsp32() {
   const [zones, setZones] = useState<Zone[]>([])
-  const [isEditMode, setIsEditMode] = useState(true)
+  const [isEditMode, setIsEditMode] = useState(false) // Start with edit mode off
   const roomRef = useRef<HTMLDivElement>(null)
   const [roomSize, setRoomSize] = useState({ width: 0, height: 0 })
   const colors = ['border-red-500', 'border-blue-500', 'border-green-500', 'border-yellow-500', 'border-purple-500', 'border-pink-500']
@@ -200,6 +247,7 @@ export function InteractiveRoomEsp32() {
           const data = await response.json()
           setZones(data.map((zone: Zone, index: number) => ({
             ...zone,
+            id: index + 1, // Assign IDs 1, 2, 3
             color: colors[index % colors.length],
           })))
         }
@@ -211,34 +259,17 @@ export function InteractiveRoomEsp32() {
     fetchZones()
   }, [])
 
-
-  const handleInteraction = (clientX: number, clientY: number) => {
-    if (roomRef.current && zones.length < 3 && isEditMode) {
+  const createNewZone = () => {
+    if (roomRef.current && zones.length < 3) {
       const rect = roomRef.current.getBoundingClientRect()
-      const x = clientX - rect.left
-      const y = rect.bottom - clientY // Invert y-coordinate
-      const x1 = Math.max(-4000, Math.min(4000, Math.round(mapCoordinate(x, 0, roomSize.width, -4000, 4000))))
-      const y1 = Math.max(1, Math.min(8000, Math.round(mapCoordinate(y, 0, roomSize.height, 1, 8000))))
+      const x1 = Math.max(-4000, Math.min(4000, Math.round(mapCoordinate(rect.width / 2, 0, roomSize.width, -4000, 4000))))
+      const y1 = Math.max(1, Math.min(8000, Math.round(mapCoordinate(rect.height / 2, 0, roomSize.height, 1, 8000))))
       const x2 = Math.max(-4000, Math.min(4000, x1 + 2000))
       const y2 = Math.min(8000, Math.max(1, y1 + 2000))
       const color = colors[zones.length % colors.length]
-      const newZone = { id: Date.now(), x1, y1, x2, y2, color }
+      const newZone = { id: zones.length + 1, x1, y1, x2, y2, color } // Assign new ID
       setZones(prevZones => [...prevZones, newZone])
       sendZoneUpdate([...zones, newZone])
-    }
-  }
-
-  const handleMouseClick = (e: React.MouseEvent) => {
-    if (isEditMode) {
-      handleInteraction(e.clientX, e.clientY)
-    }
-  }
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (isEditMode) {
-      e.preventDefault()
-      const touch = e.touches[0]
-      handleInteraction(touch.clientX, touch.clientY)
     }
   }
 
@@ -271,7 +302,7 @@ export function InteractiveRoomEsp32() {
 
   const sendZoneUpdate = async (updatedZones: Zone[]) => {
     if (!isEditMode) {
-      const esp32Zones = updatedZones.map(({ x1, y1, x2, y2 }) => ({ x1, y1, x2, y2 }))
+      const esp32Zones = updatedZones.map(({ id, x1, y1, x2, y2 }) => ({ id, x1, y1, x2, y2 }))
       try {
         const response = await fetch('/api/zones', {
           method: 'POST',
@@ -290,7 +321,7 @@ export function InteractiveRoomEsp32() {
   }
 
   const sendFinalZoneUpdate = async () => {
-    const esp32Zones = zones.map(({ x1, y1, x2, y2 }) => ({ x1, y1, x2, y2 }))
+    const esp32Zones = zones.map(({ id, x1, y1, x2, y2 }) => ({ id, x1, y1, x2, y2 }))
     try {
       const response = await fetch('/api/zones', {
         method: 'POST',
@@ -310,9 +341,12 @@ export function InteractiveRoomEsp32() {
   useEffect(() => {
     const room = roomRef.current
     if (room) {
-      room.addEventListener('touchstart', handleTouchStart as any)
+      const handleTouchStart = (e: TouchEvent) => {
+        // Add your touch start logic here
+      }
+      room.addEventListener('touchstart', handleTouchStart)
       return () => {
-        room.removeEventListener('touchstart', handleTouchStart as any)
+        room.removeEventListener('touchstart', handleTouchStart)
       }
     }
   }, [isEditMode])
@@ -336,7 +370,6 @@ export function InteractiveRoomEsp32() {
       <div 
         ref={roomRef}
         className={`w-full max-w-2xl h-96 bg-white border-2 border-gray-300 relative ${isEditMode ? 'cursor-crosshair' : 'cursor-default'}`}
-        onClick={handleMouseClick}
       >
         {zones.map(zone => (
           <MoveableResizableZone 
@@ -354,13 +387,22 @@ export function InteractiveRoomEsp32() {
       <p className="mt-4 text-sm text-gray-600">
         {isEditMode
           ? zones.length < 3
-            ? "Click or touch to create zones (max 3). Drag to move, resize from corner."
+            ? "Click 'New Zone' to create zones (max 3). Drag to move, resize from corner."
             : "Maximum number of zones reached. Delete a zone to create a new one."
           : "Edit mode is off. Toggle edit mode to make changes."}
       </p>
-      <Button onClick={resetZones} className="mt-4">
-        Reset Zones
-      </Button>
+      <div className="flex space-x-2">
+        <Button onClick={createNewZone} className="mt-4">
+          New Zone
+        </Button>
+        <Button onClick={resetZones} className="mt-4">
+          Reset Zones
+        </Button>
+      </div>
     </div>
   )
+}
+
+function resizeHandler(this: Document, ev: MouseEvent) {
+  throw new Error('Function not implemented.')
 }

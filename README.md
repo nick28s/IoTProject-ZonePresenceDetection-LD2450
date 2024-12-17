@@ -1,6 +1,6 @@
 # Zone Presence Detection with HLK-LD2450 Radar Sensor
 
-This project utilizes the HLK-LD2450 24GHz human radar sensor to implement zone presence detection for IoT applications. The sensor detects movement and presence within a designated area, making it suitable for smart home and security systems.
+This project utilizes the HLK-LD2450 24GHz human radar sensor to implement zone presence detection for IoT applications. The sensor detects movement and presence within designated zones, making it suitable for smart home and security systems.
 
 ## Hardware Requirements
 
@@ -44,6 +44,35 @@ void loop() {
     }
 }
 ```
+
+## Web Application
+
+A ReactJS web application is provided to interact with the ESP32 and visualize the zones. The application allows you to create, move, resize, and delete zones.
+
+### Features
+
+- Create up to 3 zones
+- Move and resize zones
+- Display zone IDs
+- Toggle edit mode
+- Send zone data to ESP32
+
+### Installation
+
+1. Navigate to the `ReactJSApp` directory.
+2. Install dependencies:
+    ```sh
+    npm install
+    ```
+3. Start the development server:
+    ```sh
+    npm start
+    ```
+
+### API Endpoints
+
+- `GET /api/zones`: Fetch the current zones from the ESP32.
+- `POST /api/zones`: Update the zones on the ESP32.
 
 ## License
 

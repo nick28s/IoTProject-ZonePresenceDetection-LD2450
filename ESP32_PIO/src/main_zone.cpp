@@ -32,8 +32,8 @@ bool tempZone1 = false;
 bool tempZone2 = false;
 bool tempZone3 = false;
 
-const char *ssid = "FamSa-HOME";
-const char *password = "1234UnserWlan";
+const char *ssid = "";
+const char *password = "";
 
 WiFiClient espClient;
 

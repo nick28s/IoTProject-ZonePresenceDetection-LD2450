@@ -266,13 +266,16 @@ export function InteractiveRoomEsp32() {
             : "Maximum number of zones reached. Delete a zone to create a new one."
           : "Edit mode is off. Toggle edit mode to make changes."}
       </p>
-      <div className="flex space-x-2">
+      <div className="flex space-x-2 min-h-[5rem]">
+      {isEditMode && (
+        <>
         <Button onClick={createNewZone} className="mt-4">
-          New Zone
+            New Zone
         </Button>
         <Button onClick={resetZones} className="mt-4">
-          Reset Zones
-        </Button>
+            Reset Zones
+        </Button></>
+      )} 
       </div>
     </div>
   )

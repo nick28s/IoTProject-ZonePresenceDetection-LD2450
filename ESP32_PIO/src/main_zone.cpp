@@ -3,6 +3,7 @@
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
 #include <ArduinoJson.h>
+#include <AsyncWebSocket.h>
 
 const int ledPin = 2;
 
@@ -15,6 +16,7 @@ boolean zone1, zone2, zone3;
 
 // Erstelle einen AsyncWebServer auf Port 80
 AsyncWebServer server(80);
+AsyncWebSocket ws("/ws"); // WebSocket auf "/ws" einrichten
 
 // Define zones as rectangles with (x1, y1)LeftDownCorner and (x2, y2)RightUpCorner
 struct Zone
@@ -32,8 +34,8 @@ bool tempZone1 = false;
 bool tempZone2 = false;
 bool tempZone3 = false;
 
-const char *ssid = "";
-const char *password = "";
+const char *ssid = "FamSa-HOME";
+const char *password = "1234UnserWlan";
 
 WiFiClient espClient;
 
@@ -59,6 +61,19 @@ void setup_wifi()
   Serial.println(WiFi.localIP());
 }
 
+// WebSocket-Ereignisbehandlung
+void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
+{
+  if (type == WS_EVT_CONNECT)
+  {
+    Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+  }
+  else if (type == WS_EVT_DISCONNECT)
+  {
+    Serial.printf("WebSocket client #%u disconnected\n", client->id());
+  }
+}
+
 void setup()
 {
   // Initialize serial and wait for port to open:
@@ -78,9 +93,16 @@ void setup()
 
   setup_wifi();
 
-   // POST-Endpunkt einrichten
-  server.on("/updateZones", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL,
-    [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+  // WebSocket initialisieren
+  ws.onEvent(onWebSocketEvent);
+  server.addHandler(&ws);
+
+  // Debugging log
+  Serial.println("WebSocket server initialized.");
+
+  // POST-Endpunkt einrichten
+  server.on("/updateZones", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+            {
       // JSON-Daten verarbeiten
       StaticJsonDocument<512> doc;
       DeserializationError error = deserializeJson(doc, data, len);
@@ -113,11 +135,11 @@ void setup()
       }
 
       // Erfolgsmeldung senden
-      request->send(200, "application/json", "{\"status\":\"success\",\"message\":\"Zones updated\"}");
-    });
+      request->send(200, "application/json", "{\"status\":\"success\",\"message\":\"Zones updated\"}"); });
 
-    // Handle GET request for zones
-  server.on("/zones", HTTP_GET, [](AsyncWebServerRequest *request){
+  // Handle GET request for zones
+  server.on("/zones", HTTP_GET, [](AsyncWebServerRequest *request)
+            {
     StaticJsonDocument<512> doc;
     
     // Serialize zones into JSON array
@@ -134,8 +156,7 @@ void setup()
     serializeJson(doc, jsonResponse);
 
     // Send JSON response
-    request->send(200, "application/json", jsonResponse);
-  });
+    request->send(200, "application/json", jsonResponse); });
 
   // Server starten
   server.begin();
@@ -167,6 +188,15 @@ void loop()
         const LD2450::RadarTarget target = ld2450.getTarget(i);
         // Add target information to the string
         last_target_data += "TARGET ID=" + String(i + 1) + " X=" + String((0 - target.x)) + "mm, Y=" + String(target.y) + "mm, SPEED=" + String(target.speed) + "cm/s, RESOLUTION=" + String(target.resolution) + "mm, DISTANCE=" + String(target.distance) + "mm, VALID=" + String(target.valid) + "\n";
+        // Sende Positionen via WebSocket
+        StaticJsonDocument<128> doc;
+        doc["id"] = i + 1;
+        doc["x"] = 0 - target.x;
+        doc["y"] = target.y;
+
+        String jsonString;
+        serializeJson(doc, jsonString);
+        ws.textAll(jsonString); // Sende an alle verbundenen WebSocket-Clients
 
         // Check if target is within any zone
         for (int j = 0; j < 3; j++)
@@ -196,4 +226,6 @@ void loop()
       Serial.println(last_target_data);
     }
   }
+
+  ws.cleanupClients(); // Ensure WebSocket clients are handled
 }

@@ -19,6 +19,12 @@ interface Zone {
   color: string
 }
 
+interface Point {
+  id: number
+  x: number
+  y: number
+}
+
 const MoveableResizableZone = ({ zone, onResize, onMove, onDelete, isEditMode, roomWidth, roomHeight }: { 
   zone: Zone
   onResize: (id: number, x1: number, y1: number, x2: number, y2: number) => void
@@ -117,12 +123,23 @@ const MoveableResizableZone = ({ zone, onResize, onMove, onDelete, isEditMode, r
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
       const deltaX = clientX - startX
       const deltaY = startY - clientY // Invert the y-axis movement
-      const newX1 = Math.max(-4000, Math.min(4000, zone.x1 + mapCoordinate(deltaX, 0, roomWidth, 0, 8000)))
-      const newY1 = Math.max(1, Math.min(8000, zone.y1 + mapCoordinate(deltaY, 0, roomHeight, 0, 8000)))
+      let newX1 = Math.max(-4000, Math.min(4000, zone.x1 + mapCoordinate(deltaX, 0, roomWidth, 0, 8000)))
+      let newY1 = Math.max(1, Math.min(8000, zone.y1 + mapCoordinate(deltaY, 0, roomHeight, 0, 8000)))
       const width = zone.x2 - zone.x1
       const height = zone.y2 - zone.y1
-      const newX2 = Math.max(-4000, Math.min(4000, newX1 + width))
-      const newY2 = Math.max(1, Math.min(8000, newY1 + height))
+      let newX2 = newX1 + width
+      let newY2 = newY1 + height
+
+      // Prevent moving beyond the right or top edges
+      if (newX2 > 4000) {
+        newX1 = 4000 - width
+        newX2 = 4000
+      }
+      if (newY2 > 8000) {
+        newY1 = 8000 - height
+        newY2 = 8000
+      }
+
       onMove(zone.id, newX1, newY1, newX2, newY2)
     }
 
@@ -178,40 +195,44 @@ const MoveableResizableZone = ({ zone, onResize, onMove, onDelete, isEditMode, r
       style={zoneStyle}
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="absolute top-0 left-0 bg-white text-xs px-1">{zone.id}</div>
-      {isEditMode && (
-        <>
-          <div
-            ref={moveRef}
-            className="absolute top-1/2 left-1/2 w-6 h-6 bg-white border-2 border-gray-400 cursor-move flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2"
-          >
-            <Move className="w-4 h-4 text-gray-600" />
-          </div>
-          <div
-            ref={resizeRefs.top}
-            className="absolute top-0 left-1/2 w-4 h-4 bg-white border-2 border-gray-400 cursor-n-resize transform -translate-x-1/2"
-          />
-          <div
-            ref={resizeRefs.right}
-            className="absolute top-1/2 right-0 w-4 h-4 bg-white border-2 border-gray-400 cursor-e-resize transform -translate-y-1/2"
-          />
-          <div
-            ref={resizeRefs.bottom}
-            className="absolute bottom-0 left-1/2 w-4 h-4 bg-white border-2 border-gray-400 cursor-s-resize transform -translate-x-1/2"
-          />
-          <div
-            ref={resizeRefs.left}
-            className="absolute top-1/2 left-0 w-4 h-4 bg-white border-2 border-gray-400 cursor-w-resize transform -translate-y-1/2"
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-0 right-0 text-gray-500 hover:text-gray-700"
-            onClick={handleDeleteClick}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </>
+      {isEditMode ? (
+      <>
+        <div className="absolute top-0 left-0 text-xs px-1">{zone.id}</div>
+        <div
+        ref={moveRef}
+        className="absolute top-1/2 left-1/2 w-full h-full cursor-move flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 bg-white opacity-50"
+        >
+        <Move className="w-4 h-4 text-gray-600" />
+        </div>
+        <div
+        ref={resizeRefs.top}
+        className="absolute left-1/2 w-8 h-3 bg-white border-2 border-gray-400 cursor-n-resize transform -translate-x-1/2 -top-[7px] rounded-full"
+        />
+        <div
+        ref={resizeRefs.right}
+        className="absolute top-1/2 w-3 h-8 bg-white border-2 border-gray-400 cursor-e-resize transform -translate-y-1/2 -right-[7px] rounded-full"
+        />
+        <div
+        ref={resizeRefs.bottom}
+        className="absolute left-1/2 w-8 h-3 bg-white border-2 border-gray-400 cursor-s-resize transform -translate-x-1/2 -bottom-[7px] rounded-full"
+        />
+        <div
+        ref={resizeRefs.left}
+        className="absolute top-1/2 w-3 h-8 bg-white border-2 border-gray-400 cursor-w-resize transform -translate-y-1/2 -left-[7px] rounded-full"
+        />
+        <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-0 right-0 text-gray-500 hover:text-gray-700 hover:bg-transparent"
+        onClick={handleDeleteClick}
+        >
+        <X className="h-4 w-4" />
+        </Button>
+      </>
+      ) : (
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xl opacity-40">
+        {zone.id}
+      </div>
       )}
     </div>
   )
@@ -219,10 +240,11 @@ const MoveableResizableZone = ({ zone, onResize, onMove, onDelete, isEditMode, r
 
 export function InteractiveRoomEsp32() {
   const [zones, setZones] = useState<Zone[]>([])
+  const [points, setPoints] = useState<Point[]>([]) // State to store points
   const [isEditMode, setIsEditMode] = useState(false) // Start with edit mode off
   const roomRef = useRef<HTMLDivElement>(null)
   const [roomSize, setRoomSize] = useState({ width: 0, height: 0 })
-  const colors = ['border-red-500', 'border-blue-500', 'border-green-500', 'border-yellow-500', 'border-purple-500', 'border-pink-500']
+  const colors = ['border-blue-400']
 
   useEffect(() => {
     const updateRoomSize = () => {
@@ -257,6 +279,41 @@ export function InteractiveRoomEsp32() {
     }
 
     fetchZones()
+  }, [])
+
+  useEffect(() => {
+    const ws = new WebSocket('ws://192.168.178.145/ws') // Replace with your ESP32 WebSocket URL
+
+    ws.onopen = () => {
+      console.log('WebSocket connection established.');
+    }
+
+    ws.onmessage = (event) => {
+      console.log('WebSocket message received:', event.data);
+      const data = JSON.parse(event.data)
+      setPoints((prevPoints) => {
+        const existingPointIndex = prevPoints.findIndex((point) => point.id === data.id)
+        if (existingPointIndex !== -1) {
+          const updatedPoints = [...prevPoints]
+          updatedPoints[existingPointIndex] = { id: data.id, x: data.x, y: data.y }
+          return updatedPoints
+        } else {
+          return [...prevPoints, { id: data.id, x: data.x, y: data.y }]
+        }
+      })
+    }
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    }
+
+    ws.onclose = () => {
+      console.log('WebSocket connection closed.');
+    }
+
+    return () => {
+      ws.close()
+    }
   }, [])
 
   const createNewZone = () => {
@@ -352,7 +409,7 @@ export function InteractiveRoomEsp32() {
   }, [isEditMode])
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+    <div className="select-none flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <h1 className="text-2xl font-bold mb-4">Interactive Room with ESP32 Communication</h1>
       <div className="flex items-center space-x-2 mb-4">
         <Switch
@@ -381,6 +438,16 @@ export function InteractiveRoomEsp32() {
             isEditMode={isEditMode}
             roomWidth={roomSize.width}
             roomHeight={roomSize.height}
+          />
+        ))}
+        {points.map(point => (
+          <div
+            key={point.id}
+            className="absolute w-2 h-2 bg-red-500 rounded-full"
+            style={{
+              left: mapCoordinate(point.x, -4000, 4000, 0, roomSize.width),
+              bottom: mapCoordinate(point.y, 1, 8000, 0, roomSize.height),
+            }}
           />
         ))}
       </div>

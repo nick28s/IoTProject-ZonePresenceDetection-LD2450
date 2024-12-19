@@ -10,15 +10,16 @@ import { DetectedPoints } from './DetectedPoints'
 import { useWebSocket } from '@/hooks/useWebSocket'
 import { Zone } from '@/types'
 import { mapCoordinate } from '@/utils/coordinates'
+import { config } from '@/config'
 
 export function InteractiveRoomEsp32() {
   const [zones, setZones] = useState<Zone[]>([])
   const [isEditMode, setIsEditMode] = useState(false)
   const roomRef = useRef<HTMLDivElement>(null)
   const [roomSize, setRoomSize] = useState({ width: 0, height: 0 })
-  const colors = ['border-blue-400']
+  const colors = config.zones.colors
   
-  const { points, isConnected } = useWebSocket('ws://192.168.178.145/ws')
+  const { points, isConnected } = useWebSocket(config.esp32.webSocketUrl)
 
   useEffect(() => {
     const updateRoomSize = () => {

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { config } from '@/config'
 
 let zones = [
   { x1: 1, y1: 1, x2: 4000, y2: 4000 },
@@ -6,9 +7,9 @@ let zones = [
   { x1: -4001, y1: 4001, x2: 4001, y2: 8000 }
 ]
 
-// URL des ESP32-Servers (Anpassen mit der tatsächlichen IP-Adresse des ESP32)
-const ESP32_URL = 'http://192.168.178.145/updateZones'
-const ESP32_URL_GETZONES = 'http://192.168.178.145/zones'  
+// Replace hardcoded URLs
+const ESP32_URL = `${config.esp32.apiBaseUrl}${config.esp32.endpoints.updateZones}`
+const ESP32_URL_GETZONES = `${config.esp32.apiBaseUrl}${config.esp32.endpoints.zones}`
 
 export async function GET() {
   try {
@@ -50,14 +51,14 @@ export async function POST(request: Request) {
   const newZones = await request.json()
 
   // Ensure we only have up to 3 zones
-  zones = newZones.slice(0, 3)
+  zones = newZones.slice(0, config.zones.maxCount)
 
   // Validate and constrain zone coordinates
   zones = zones.map(zone => ({
-    x1: Math.round(Math.max(-4000, Math.min(4000, zone.x1))),
-    y1: Math.round(Math.max(1, Math.min(6000, zone.y1))),
-    x2: Math.round(Math.max(-4000, Math.min(4000, zone.x2))),
-    y2: Math.round(Math.max(1, Math.min(6000, zone.y2)))
+    x1: Math.round(Math.max(config.room.coordinates.minX, Math.min(config.room.coordinates.maxX, zone.x1))),
+    y1: Math.round(Math.max(config.room.coordinates.minY, Math.min(config.room.coordinates.maxY, zone.y1))),
+    x2: Math.round(Math.max(config.room.coordinates.minX, Math.min(config.room.coordinates.maxX, zone.x2))),
+    y2: Math.round(Math.max(config.room.coordinates.minY, Math.min(config.room.coordinates.maxY, zone.y2)))
   }))
 
   try {

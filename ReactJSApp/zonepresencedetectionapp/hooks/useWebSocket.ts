@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Point } from '@/types'
+import { config } from '@/config'
 
 export const useWebSocket = (url: string) => {
   const [points, setPoints] = useState<Point[]>([])

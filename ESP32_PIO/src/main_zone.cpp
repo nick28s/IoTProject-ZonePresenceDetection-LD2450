@@ -28,7 +28,7 @@ struct Zone
 Zone zones[3] = {
     {-4000, 1, -1, 4000},     // Zone 2
     {1, 1, 4000, 4000},       // Zone 1
-    {-4001, 4001, 4001, 8000} // Zone 3
+    {-4001, 4001, 4001, 6000} // Zone 3
 };
 
 bool tempZone1 = false;
@@ -176,6 +176,17 @@ void loop()
       zone1 = false;
       zone2 = false;
       zone3 = false;
+      for (int i = 0; i < ld2450.getSensorSupportedTargetCount(); i++)
+      {
+        StaticJsonDocument<128> doc;
+        doc["id"] = i + 1;
+        doc["x"] = 0;
+        doc["y"] = 0;
+
+        String jsonString;
+        serializeJson(doc, jsonString);
+        ws.textAll(jsonString); // Sende an alle verbundenen WebSocket-Clients
+      }
     }
     else
     {

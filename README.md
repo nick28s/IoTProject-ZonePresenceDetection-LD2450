@@ -137,13 +137,9 @@ HLK-LD2450  |  ESP32-WROOM
    ```bash
    npm install
    ```
-4. Configure environment:
+4. Start development server:
    ```bash
-   cp .env.example .env
-   ```
-5. Start development server:
-   ```bash
-   npm start
+   npm run dev
    ```
 
 ## 🎯 Usage Guide

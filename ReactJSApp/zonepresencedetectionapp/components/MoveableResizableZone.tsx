@@ -191,47 +191,47 @@ export const MoveableResizableZone = ({ zone, onResize, onMove, onDelete, isEdit
   return (
     <div
       ref={zoneRef}
-      className={`absolute border-2 ${zone.color}`}
+      className={`absolute border-2 border-blue-400`}
       style={zoneStyle}
       onClick={(e) => e.stopPropagation()}
     >
       {isEditMode ? (
       <>
-        <div className="absolute top-0 left-0 text-xs px-1">{zone.id}</div>
-        <div
-        ref={moveRef}
-        className="absolute top-1/2 left-1/2 w-full h-full cursor-move flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 bg-white opacity-50"
-        >
-        <Move className="w-4 h-4 text-gray-600" />
-        </div>
-        <div
-        ref={resizeRefs.top}
-        className="absolute left-1/2 w-8 h-3 bg-white border-2 border-gray-400 cursor-n-resize transform -translate-x-1/2 -top-[7px] rounded-full"
-        />
-        <div
-        ref={resizeRefs.right}
-        className="absolute top-1/2 w-3 h-8 bg-white border-2 border-gray-400 cursor-e-resize transform -translate-y-1/2 -right-[7px] rounded-full"
-        />
-        <div
-        ref={resizeRefs.bottom}
-        className="absolute left-1/2 w-8 h-3 bg-white border-2 border-gray-400 cursor-s-resize transform -translate-x-1/2 -bottom-[7px] rounded-full"
-        />
-        <div
-        ref={resizeRefs.left}
-        className="absolute top-1/2 w-3 h-8 bg-white border-2 border-gray-400 cursor-w-resize transform -translate-y-1/2 -left-[7px] rounded-full"
-        />
-        <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-0 right-0 text-gray-500 hover:text-gray-700 hover:bg-transparent"
-        onClick={handleDeleteClick}
-        >
-        <X className="h-4 w-4" />
-        </Button>
+      <div className="absolute top-0 left-0 text-xs px-1">{zone.id}</div>
+      <div
+      ref={moveRef}
+      className="absolute top-1/2 left-1/2 w-full h-full cursor-move flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 bg-white opacity-50"
+      >
+      <Move className="w-4 h-4 text-gray-600" />
+      </div>
+      <div
+      ref={resizeRefs.top}
+      className="absolute left-1/2 w-8 h-3 bg-white border-2 border-gray-400 cursor-n-resize transform -translate-x-1/2 -top-[7px] rounded-full"
+      />
+      <div
+      ref={resizeRefs.right}
+      className="absolute top-1/2 w-3 h-8 bg-white border-2 border-gray-400 cursor-e-resize transform -translate-y-1/2 -right-[7px] rounded-full"
+      />
+      <div
+      ref={resizeRefs.bottom}
+      className="absolute left-1/2 w-8 h-3 bg-white border-2 border-gray-400 cursor-s-resize transform -translate-x-1/2 -bottom-[7px] rounded-full"
+      />
+      <div
+      ref={resizeRefs.left}
+      className="absolute top-1/2 w-3 h-8 bg-white border-2 border-gray-400 cursor-w-resize transform -translate-y-1/2 -left-[7px] rounded-full"
+      />
+      <Button
+      variant="ghost"
+      size="icon"
+      className="absolute top-0 right-0 text-gray-500 hover:text-gray-700 hover:bg-transparent"
+      onClick={handleDeleteClick}
+      >
+      <X className="h-4 w-4" />
+      </Button>
       </>
       ) : (
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xl opacity-40">
-        {zone.id}
+      {zone.id}
       </div>
       )}
     </div>

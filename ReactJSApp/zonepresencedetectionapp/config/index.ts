@@ -24,7 +24,7 @@ export const config = {
     maxCount: 3,
     defaultSize: 2000,
     minSize: 20,
-    colors: ['border-blue-400', 'border-green-400', 'border-red-400']
+    colors: ['border-blue-400']
   },
   users: {
     colors: ['bg-purple-500', 'bg-green-500', 'bg-yellow-500']

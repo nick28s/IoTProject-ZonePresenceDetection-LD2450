@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { MoveableResizableZone } from './MoveableResizableZone'
-import { CircleUserRound } from 'lucide-react'
+import { CircleUserRound, Radio } from 'lucide-react'
 
 const mapCoordinate = (value: number, inMin: number, inMax: number, outMin: number, outMax: number) => {
   return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin
@@ -218,6 +218,19 @@ export function InteractiveRoomEsp32() {
         ref={roomRef}
         className={`w-full max-w-2xl h-96 bg-white border-2 border-gray-300 relative ${isEditMode ? 'cursor-crosshair' : 'cursor-default'}`}
       >
+        {/* Sensor icon */}
+        <div
+          className="absolute"
+          style={{
+            left: mapCoordinate(0, -4000, 4000, 0, roomSize.width),
+            bottom: 0,
+            transform: 'translate(-50%, 50%)',
+            zIndex: 50
+          }}
+        >
+          <Radio className="w-6 h-6 text-gray-600" />
+        </div>
+
         {zones.map(zone => (
           <MoveableResizableZone 
             key={zone.id} 

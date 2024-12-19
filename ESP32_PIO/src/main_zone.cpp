@@ -4,6 +4,7 @@
 #include <ESPAsyncWebServer.h>
 #include <ArduinoJson.h>
 #include <AsyncWebSocket.h>
+#include "WiFiCredentials.h"
 
 const int ledPin = 2;
 
@@ -34,8 +35,8 @@ bool tempZone1 = false;
 bool tempZone2 = false;
 bool tempZone3 = false;
 
-const char *ssid = "FamSa-HOME";
-const char *password = "1234UnserWlan";
+const char *ssid = WIFI_SSID;
+const char *password = WIFI_PASSWORD;
 
 WiFiClient espClient;
 

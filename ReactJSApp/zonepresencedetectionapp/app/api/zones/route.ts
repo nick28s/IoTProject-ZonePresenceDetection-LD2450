@@ -55,9 +55,9 @@ export async function POST(request: Request) {
   // Validate and constrain zone coordinates
   zones = zones.map(zone => ({
     x1: Math.round(Math.max(-4000, Math.min(4000, zone.x1))),
-    y1: Math.round(Math.max(1, Math.min(8000, zone.y1))),
+    y1: Math.round(Math.max(1, Math.min(6000, zone.y1))),
     x2: Math.round(Math.max(-4000, Math.min(4000, zone.x2))),
-    y2: Math.round(Math.max(1, Math.min(8000, zone.y2)))
+    y2: Math.round(Math.max(1, Math.min(6000, zone.y2)))
   }))
 
   try {

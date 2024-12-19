@@ -87,10 +87,10 @@ export const MoveableResizableZone = ({ zone, onResize, onMove, onDelete, isEdit
 
       if (direction === 'top') {
         height = Math.max(20, startHeight + startY - clientY)
-        y2 = Math.max(1, Math.min(8000, zone.y1 + mapCoordinate(height, 0, roomHeight, 0, 8000)))
+        y2 = Math.max(1, Math.min(6000, zone.y1 + mapCoordinate(height, 0, roomHeight, 0, 6000)))
       } else if (direction === 'bottom') {
         height = Math.max(20, startHeight - (startY - clientY))
-        y1 = Math.max(1, Math.min(8000, zone.y2 - mapCoordinate(height, 0, roomHeight, 0, 8000)))
+        y1 = Math.max(1, Math.min(6000, zone.y2 - mapCoordinate(height, 0, roomHeight, 0, 6000)))
       }
 
       onResize(zone.id, x1, y1, x2, y2)
@@ -122,7 +122,7 @@ export const MoveableResizableZone = ({ zone, onResize, onMove, onDelete, isEdit
       const deltaX = clientX - startX
       const deltaY = startY - clientY // Invert the y-axis movement
       let newX1 = Math.max(-4000, Math.min(4000, zone.x1 + mapCoordinate(deltaX, 0, roomWidth, 0, 8000)))
-      let newY1 = Math.max(1, Math.min(8000, zone.y1 + mapCoordinate(deltaY, 0, roomHeight, 0, 8000)))
+      let newY1 = Math.max(1, Math.min(6000, zone.y1 + mapCoordinate(deltaY, 0, roomHeight, 0, 6000)))
       const width = zone.x2 - zone.x1
       const height = zone.y2 - zone.y1
       let newX2 = newX1 + width
@@ -133,9 +133,9 @@ export const MoveableResizableZone = ({ zone, onResize, onMove, onDelete, isEdit
         newX1 = 4000 - width
         newX2 = 4000
       }
-      if (newY2 > 8000) {
-        newY1 = 8000 - height
-        newY2 = 8000
+      if (newY2 > 6000) {
+        newY1 = 6000 - height
+        newY2 = 6000
       }
 
       onMove(zone.id, newX1, newY1, newX2, newY2)
@@ -183,9 +183,9 @@ export const MoveableResizableZone = ({ zone, onResize, onMove, onDelete, isEdit
 
   const zoneStyle = {
     left: mapCoordinate(zone.x1, -4000, 4000, 0, roomWidth),
-    bottom: mapCoordinate(zone.y1, 1, 8000, 0, roomHeight), // Change 'top' to 'bottom'
+    bottom: mapCoordinate(zone.y1, 1, 6000, 0, roomHeight), // Change 'top' to 'bottom'
     width: mapCoordinate(zone.x2 - zone.x1, 0, 8000, 0, roomWidth),
-    height: mapCoordinate(zone.y2 - zone.y1, 0, 8000, 0, roomHeight),
+    height: mapCoordinate(zone.y2 - zone.y1, 0, 6000, 0, roomHeight),
   }
 
   return (

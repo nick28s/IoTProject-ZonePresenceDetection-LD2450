@@ -108,9 +108,9 @@ export function InteractiveRoomEsp32() {
     if (roomRef.current && zones.length < 3) {
       const rect = roomRef.current.getBoundingClientRect()
       const x1 = Math.max(-4000, Math.min(4000, Math.round(mapCoordinate(rect.width / 2, 0, roomSize.width, -4000, 4000))))
-      const y1 = Math.max(1, Math.min(8000, Math.round(mapCoordinate(rect.height / 2, 0, roomSize.height, 1, 8000))))
+      const y1 = Math.max(1, Math.min(6000, Math.round(mapCoordinate(rect.height / 2, 0, roomSize.height, 1, 6000))))
       const x2 = Math.max(-4000, Math.min(4000, x1 + 2000))
-      const y2 = Math.min(8000, Math.max(1, y1 + 2000))
+      const y2 = Math.min(6000, Math.max(1, y1 + 2000))
       const color = colors[zones.length % colors.length]
       const newZone = { id: zones.length + 1, x1, y1, x2, y2, color } // Assign new ID
       setZones(prevZones => [...prevZones, newZone])
@@ -251,7 +251,7 @@ export function InteractiveRoomEsp32() {
                 className={"absolute rounded-full " + userColors[index % userColors.length] + " invisible"}
                 style={{
                   left: mapCoordinate(point.x, -4000, 4000, 0, roomSize.width),
-                  bottom: mapCoordinate(point.y, 1, 8000, 0, roomSize.height),
+                  bottom: mapCoordinate(point.y, 1, 6000, 0, roomSize.height),
                 }}
               >
                 <CircleUserRound className="w-6 h-6 text-white p-0.5" />
@@ -264,7 +264,7 @@ export function InteractiveRoomEsp32() {
               className={"absolute rounded-full " + userColors[index % userColors.length]}
               style={{
                 left: mapCoordinate(point.x, -4000, 4000, 0, roomSize.width),
-                bottom: mapCoordinate(point.y, 1, 8000, 0, roomSize.height),
+                bottom: mapCoordinate(point.y, 1, 6000, 0, roomSize.height),
               }}
             >
               <CircleUserRound className="w-6 h-6 text-white p-0.5" />

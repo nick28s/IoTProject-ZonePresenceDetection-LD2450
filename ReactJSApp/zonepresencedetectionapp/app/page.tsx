@@ -1,5 +1,5 @@
 
-import { InteractiveRoomEsp32 } from '@/components/InteractiveRoomEsp32';
+import { InteractiveRoomEsp32 } from '@/components/InteractiveRoom';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {

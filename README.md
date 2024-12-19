@@ -1,79 +1,237 @@
-# Zone Presence Detection with HLK-LD2450 Radar Sensor
+# Zone Presence Detection System with HLK-LD2450 Radar
 
-This project utilizes the HLK-LD2450 24GHz human radar sensor to implement zone presence detection for IoT applications. The sensor detects movement and presence within designated zones, making it suitable for smart home and security systems.
+![Project Banner](docs/images/banner.png)
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![ESP32](https://img.shields.io/badge/ESP32-Ready-blue)
+![React](https://img.shields.io/badge/React-18-61dafb)
 
-## Hardware Requirements
+A sophisticated IoT presence detection system combining high-precision radar technology with modern web interfaces. Perfect for smart home automation, security systems, and occupancy monitoring.
 
-- HLK-LD2450 radar sensor
+## 📋 Table of Contents
+- [Features](#-features)
+- [System Architecture](#-system-architecture)
+- [Hardware Requirements](#-hardware-requirements)
+- [Installation Guide](#-installation-guide)
+- [Usage Instructions](#-usage-instructions)
+- [Technical Details](#-technical-details)
+- [API Documentation](#-api-documentation)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
+
+## 🌟 Features
+
+### Radar Capabilities
+- High-precision 24GHz mmWave radar technology
+- Real-time tracking of up to 3 targets simultaneously
+- Detection range: 6 meters
+- Millimeter-level position accuracy
+- Non-intrusive presence detection
+
+### Interactive Web Interface
+- Real-time position visualization
+- Drag-and-drop zone configuration
+- Mobile-responsive design
+- Live target tracking display
+- Visual connection status indicator
+- Zone occupancy feedback
+
+### Smart Zone Management
+- Create up to 3 customizable detection zones
+- Visual zone editing tools
+- Zone persistence across sessions
+- Real-time zone validation
+- Automatic coordinate mapping
+
+### Communication
+- WebSocket-based real-time updates
+- RESTful API for zone configuration
+- Robust error handling
+- Automatic reconnection
+- Secure data transmission
+
+## 🏗 System Architecture
+
+### Hardware Layer
+- **HLK-LD2450 Radar Sensor**
+  - 24GHz mmWave technology
+  - Serial communication interface
+  - Built-in target tracking algorithms
+  - Low power consumption
+
+- **ESP32 Controller**
+  - Dual-core processor
+  - WebSocket server
+  - REST API endpoint
+  - WiFi connectivity
+  - Serial communication handler
+
+### Software Layer
+- **ESP32 Firmware**
+  - FreeRTOS task management
+  - WebSocket server implementation
+  - JSON data processing
+  - Zone calculation algorithms
+
+- **React Web Application**
+  - Modern React 18 with hooks
+  - Real-time WebSocket client
+  - Interactive zone editor
+  - Responsive design system
+  - Error boundary implementation
+
+### Data Flow
+1. Radar sensor captures position data
+2. ESP32 processes and validates data
+3. Zone presence is calculated
+4. Data is streamed via WebSocket
+5. Web interface updates in real-time
+
+## 🔧 Hardware Setup
+
+### Components List
+- HLK-LD2450 24GHz radar sensor
 - ESP32 development board
+- USB-C power supply (5V)
 - Jumper wires
+- Optional: 3D printed case
 
-## Wiring Diagram
+### Wiring Diagram
+```
+HLK-LD2450  |  ESP32-WROOM
+---------------------------
+     5V     |     5V/VIN
+    GND     |      GND
+     TX     |  GPIO16 (RX2)
+     RX     |  GPIO17 (TX2)
+```
 
-| HLK-LD2450 | ESP32          |
-|------------|----------------|
-| 5V         | 5V             |
-| GND        | GND            |
-| TX         | GPIO16 (RX2)   |
-| RX         | GPIO17 (TX2)   |
+### Mounting Recommendations
+- Mount radar sensor at 1.2-1.5m height
+- Ensure clear line of sight
+- Avoid metal obstacles
+- Keep away from WiFi antennas
 
-## Installation
+## ⚙️ Installation
 
-1. Install the `LD2450` library via the PlatformIO Library Manager.
-2. Set up the ESP32 development environment with PlatformIO.
+### ESP32 Development Setup
+1. Install Visual Studio Code
+2. Install PlatformIO Extension
+3. Clone repository:
+   ```bash
+   git clone https://github.com/yourusername/ZonePresenceDetection.git
+   ```
+4. Configure WiFi credentials:
+   ```cpp
+   // WiFiCredentials.h
+   #define WIFI_SSID "your_ssid"
+   #define WIFI_PASSWORD "your_password"
+   ```
+5. Upload firmware via PlatformIO
 
-## Usage
+### Web Application Setup
+1. Install Node.js (v16+)
+2. Navigate to web app directory:
+   ```bash
+   cd ReactJSApp/zonepresencedetectionapp
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Configure environment:
+   ```bash
+   cp .env.example .env
+   ```
+5. Start development server:
+   ```bash
+   npm start
+   ```
 
-Include the LD2450 library in your project and initialize the sensor in your code. Use the provided methods to read data from the sensor and handle presence detection logic.
+## 🎯 Usage Guide
 
-## Example
+### Initial Setup
+1. Power up ESP32
+2. Connect to ESP32's IP address
+3. Open web interface
+4. Configure initial zones
 
-```cpp
-#include <LD2450.h>
+### Zone Configuration
+1. Enable "Edit Mode"
+2. Click "New Zone" to create zone
+3. Drag to position
+4. Use handles to resize
+5. Save configuration
 
-LD2450 ld2450;
+### Real-time Monitoring
+- View live target positions
+- Monitor zone occupancy
+- Check connection status
+- View target trajectories
 
-void setup() {
-    Serial.begin(115200);
-    ld2450.begin(Serial2, false);
-}
+## 🔍 Technical Specifications
 
-void loop() {
-    if (ld2450.read() > 0) {
-        Serial.println(ld2450.getLastTargetMessage());
+### Radar Parameters
+- Frequency: 24GHz
+- Range: 6m
+- Update rate: 20Hz
+- Resolution: 1mm
+- Field of view: 120°
+
+### Zone Configuration
+- Maximum zones: 3
+- X range: -4000 to 4000mm
+- Y range: 1 to 6000mm
+- Minimum size: 20x20mm
+- Maximum size: 8000x6000mm
+
+## 📡 API Documentation
+
+### WebSocket Endpoint
+- URL: `ws://<ESP32_IP>/ws`
+- Protocol: WebSocket
+- Format: JSON
+
+### REST Endpoints
+- Zone Configuration:
+  ```
+  GET  /zones          // Fetch zones
+  POST /updateZones    // Update zones
+  ```
+
+### Data Formats
+```json
+{
+  "zones": [
+    {
+      "id": 1,
+      "x1": -4000,
+      "y1": 1,
+      "x2": 4000,
+      "y2": 6000
     }
+  ]
 }
 ```
 
-## Web Application
+## 🚧 Troubleshooting
 
-A ReactJS web application is provided to interact with the ESP32 and visualize the zones. The application allows you to create, move, resize, and delete zones.
+### Common Issues
+1. Connection failures
+2. Zone update errors
+3. Target detection issues
+4. Coordinate mapping problems
 
-### Features
+### Debug Mode
+Enable debug output in ESP32:
+```cpp
+#define DEBUG_MODE true
+```
 
-- Create up to 3 zones
-- Move and resize zones
-- Display zone IDs
-- Toggle edit mode
-- Send zone data to ESP32
+## 🤝 Contributing
 
-### Installation
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
-1. Navigate to the `ReactJSApp` directory.
-2. Install dependencies:
-    ```sh
-    npm install
-    ```
-3. Start the development server:
-    ```sh
-    npm start
-    ```
+## 📄 License
 
-### API Endpoints
-
-- `GET /api/zones`: Fetch the current zones from the ESP32.
-- `POST /api/zones`: Update the zones on the ESP32.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

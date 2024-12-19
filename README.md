@@ -16,8 +16,6 @@ A sophisticated IoT presence detection system combining high-precision radar tec
 - [Usage Instructions](#-usage-instructions)
 - [Technical Details](#-technical-details)
 - [API Documentation](#-api-documentation)
-- [Troubleshooting](#-troubleshooting)
-- [Contributing](#-contributing)
 
 ## 🌟 Features
 
@@ -213,24 +211,6 @@ HLK-LD2450  |  ESP32-WROOM
   ]
 }
 ```
-
-## 🚧 Troubleshooting
-
-### Common Issues
-1. Connection failures
-2. Zone update errors
-3. Target detection issues
-4. Coordinate mapping problems
-
-### Debug Mode
-Enable debug output in ESP32:
-```cpp
-#define DEBUG_MODE true
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
 ## 📄 License
 

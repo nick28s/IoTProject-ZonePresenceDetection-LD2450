@@ -4,6 +4,8 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  overscroll-behavior: none;
+  overflow: hidden;
 }
 
 @layer utilities {

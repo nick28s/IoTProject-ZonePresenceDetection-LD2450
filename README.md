@@ -137,7 +137,14 @@ HLK-LD2450  |  ESP32-WROOM
    ```bash
    npm install
    ```
-4. Start development server:
+4. Configure ESP32 IP address:
+   - Open `config/index.ts`
+   - Update the ESP32_IP constant with your ESP32's IP address:
+   ```typescript
+   const ESP32_IP = 'YOUR_ESP32_IP_HERE' // e.g., '192.168.1.100'
+   ```
+   Note: You can find the ESP32's IP address in the Serial Monitor after the device connects to WiFi
+5. Start development server:
    ```bash
    npm run dev
    ```
@@ -146,9 +153,10 @@ HLK-LD2450  |  ESP32-WROOM
 
 ### Initial Setup
 1. Power up ESP32
-2. Connect to ESP32's IP address
-3. Open web interface
-4. Configure initial zones
+2. Note the ESP32's IP address from Serial Monitor output
+3. Configure the IP address in the web application (see Web Application Setup step 4)
+4. Open web interface at http://localhost:3000
+5. Configure initial zones
 
 ### Zone Configuration
 1. Enable "Edit Mode"

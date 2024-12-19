@@ -55,7 +55,32 @@ const config: Config = {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+      keyframes: {
+        wifi: {
+          '0%': { opacity: '0.2', transform: 'scale(0.5)' },
+          '50%': { opacity: '1', transform: 'scale(1)' },
+          '100%': { opacity: '0.2', transform: 'scale(0.5)' },
+        },
+        'wifi-wave': {
+          '0%': { 
+            opacity: '0.2',
+            transform: 'scale(0.5) translate(-50%, 50%)'
+          },
+          '50%': { 
+            opacity: '1',
+            transform: 'scale(1) translate(-50%, 50%)'
+          },
+          '100%': { 
+            opacity: '0.2',
+            transform: 'scale(0.5) translate(-50%, 50%)'
+          }
+        }
+      },
+      animation: {
+        'wifi': 'wifi 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'wifi-pulse': 'wifi-wave 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+      },
   	}
   },
   plugins: [require("tailwindcss-animate")],

@@ -129,9 +129,9 @@ export const MoveableResizableZone = ({ zone, onResize, onMove, onDelete, isEdit
       let newY2 = newY1 + height
 
       // Prevent moving beyond the right or top edges
-      if (newX2 > 4000) {
-        newX1 = 4000 - width
-        newX2 = 4000
+      if (newX2 > 3950) {
+        newX1 = 3950 - width
+        newX2 = 3950
       }
       if (newY2 > 6000) {
         newY1 = 6000 - height

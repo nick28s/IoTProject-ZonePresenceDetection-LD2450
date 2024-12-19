@@ -150,7 +150,7 @@ export function InteractiveRoomEsp32() {
 
   return (
     <div className="select-none flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <h1 className="text-2xl font-bold mb-4">Zone Presence Detection App</h1>
+      <h1 className="text-2xl font-bold mb-4">Zonex Presence Detection App</h1>
       <div className="flex items-center space-x-2 mb-4">
         <Switch
           id="edit-mode"

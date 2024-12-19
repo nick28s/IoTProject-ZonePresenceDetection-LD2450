@@ -10,7 +10,7 @@ interface DetectedPointsProps {
 }
 
 // Replace hardcoded colors
-const userColors = config.users.colors
+const userColors = ['bg-purple-500', 'bg-green-500', 'bg-yellow-500']
 
 export function DetectedPoints({ points, roomWidth, roomHeight }: DetectedPointsProps) {
   return (

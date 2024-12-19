@@ -11,11 +11,12 @@ A sophisticated IoT presence detection system combining high-precision radar tec
 ## 📋 Table of Contents
 - [Features](#-features)
 - [System Architecture](#-system-architecture)
-- [Hardware Requirements](#-hardware-requirements)
-- [Installation Guide](#-installation-guide)
-- [Usage Instructions](#-usage-instructions)
-- [Technical Details](#-technical-details)
+- [Hardware Setup](#-hardware-setup)
+- [Installation](#%EF%B8%8F-installation)
+- [Usage Guide](#-usage-guide)
+- [Technical Specifications](#-technical-specifications)
 - [API Documentation](#-api-documentation)
+- [License](#-license)
 
 ## 🌟 Features
 

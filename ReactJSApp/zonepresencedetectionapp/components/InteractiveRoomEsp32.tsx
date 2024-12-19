@@ -5,35 +5,20 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { MoveableResizableZone } from './MoveableResizableZone'
-import { CircleUserRound } from 'lucide-react' // Updated import
 import { AnimatedWifiSignal } from './AnimatedWifiSignal'
-
-const mapCoordinate = (value: number, inMin: number, inMax: number, outMin: number, outMax: number) => {
-  return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin
-}
-
-interface Zone {
-  id: number
-  x1: number
-  y1: number
-  x2: number
-  y2: number
-  color: string
-}
-
-interface Point {
-  id: number
-  x: number
-  y: number
-}
+import { DetectedPoints } from './DetectedPoints'
+import { useWebSocket } from '@/hooks/useWebSocket'
+import { Zone } from '@/types'
+import { mapCoordinate } from '@/utils/coordinates'
 
 export function InteractiveRoomEsp32() {
   const [zones, setZones] = useState<Zone[]>([])
-  const [points, setPoints] = useState<Point[]>([]) // State to store points
-  const [isEditMode, setIsEditMode] = useState(false) // Start with edit mode off
+  const [isEditMode, setIsEditMode] = useState(false)
   const roomRef = useRef<HTMLDivElement>(null)
   const [roomSize, setRoomSize] = useState({ width: 0, height: 0 })
   const colors = ['border-blue-400']
+  
+  const { points, isConnected } = useWebSocket('ws://192.168.178.145/ws')
 
   useEffect(() => {
     const updateRoomSize = () => {
@@ -68,41 +53,6 @@ export function InteractiveRoomEsp32() {
     }
 
     fetchZones()
-  }, [])
-
-  useEffect(() => {
-    const ws = new WebSocket('ws://192.168.178.145/ws') // Replace with your ESP32 WebSocket URL
-
-    ws.onopen = () => {
-      console.log('WebSocket connection established.');
-    }
-
-    ws.onmessage = (event) => {
-      console.log('WebSocket message received:', event.data);
-      const data = JSON.parse(event.data)
-      setPoints((prevPoints) => {
-        const existingPointIndex = prevPoints.findIndex((point) => point.id === data.id)
-        if (existingPointIndex !== -1) {
-          const updatedPoints = [...prevPoints]
-          updatedPoints[existingPointIndex] = { id: data.id, x: data.x, y: data.y }
-          return updatedPoints
-        } else {
-          return [...prevPoints, { id: data.id, x: data.x, y: data.y }]
-        }
-      })
-    }
-
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    }
-
-    ws.onclose = () => {
-      console.log('WebSocket connection closed.');
-    }
-
-    return () => {
-      ws.close()
-    }
   }, [])
 
   const createNewZone = () => {
@@ -197,8 +147,6 @@ export function InteractiveRoomEsp32() {
     }
   }, [isEditMode])
 
-  const userColors = ['bg-purple-500', 'bg-green-500', 'bg-yellow-500']
-
   return (
     <div className="select-none flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <h1 className="text-2xl font-bold mb-4">Zone Presence Detection App</h1>
@@ -219,7 +167,6 @@ export function InteractiveRoomEsp32() {
         ref={roomRef}
         className={`w-full max-w-2xl h-96 bg-white border-2 border-gray-300 relative ${isEditMode ? 'cursor-crosshair' : 'cursor-default'}`}
       >
-        {/* Replace Wifi icon with AnimatedWifiSignal */}
         <div
           className="absolute"
           style={{
@@ -244,34 +191,12 @@ export function InteractiveRoomEsp32() {
             roomHeight={roomSize.height}
           />
         ))}
-        {points.map((point, index) => {
-          if (point.x == 0 && point.y == 0) {
-            return (
-              <div
-                key={point.id}
-                className={"absolute rounded-full " + userColors[index % userColors.length] + " invisible"}
-                style={{
-                  left: mapCoordinate(point.x, -4000, 4000, 0, roomSize.width),
-                  bottom: mapCoordinate(point.y, 1, 6000, 0, roomSize.height),
-                }}
-              >
-                <CircleUserRound className="w-6 h-6 text-white p-0.5" />
-              </div>
-            );
-          }
-          return (
-            <div
-              key={point.id}
-              className={"absolute rounded-full " + userColors[index % userColors.length]}
-              style={{
-                left: mapCoordinate(point.x, -4000, 4000, 0, roomSize.width),
-                bottom: mapCoordinate(point.y, 1, 6000, 0, roomSize.height),
-              }}
-            >
-              <CircleUserRound className="w-6 h-6 text-white p-0.5" />
-            </div>
-          );
-        })}
+
+        <DetectedPoints 
+          points={points}
+          roomWidth={roomSize.width}
+          roomHeight={roomSize.height}
+        />
       </div>
       <p className="mt-4 text-sm text-gray-600">
         {isEditMode

@@ -78,7 +78,7 @@ void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsE
 void setup()
 {
   // Initialize serial and wait for port to open:
-  Serial.begin(256000);
+  Serial.begin(115200);
   // This delay gives the chance to wait for a Serial Monitor without blocking if none is found
   delay(1500);
   ld2450.setNumberOfTargets(3);

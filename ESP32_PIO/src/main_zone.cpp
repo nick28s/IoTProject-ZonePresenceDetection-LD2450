@@ -166,6 +166,12 @@ void setup()
 
 void loop()
 {
+  // Reconnect to WiFi if connection is lost
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("WiFi connection lost. Reconnecting...");
+    setup_wifi();
+  }
+
   // Your code here
   last_target_data = "";
   if (ld2450.read() > 0)

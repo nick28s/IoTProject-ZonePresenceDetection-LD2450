@@ -38,9 +38,8 @@ export async function GET() {
     // Wenn die ESP32-Anfrage fehlschlägt, geben wir die lokal gespeicherten Zonen zurück
     return NextResponse.json(
       { 
-        message: 'Failed to fetch zones from ESP32. Returning local zones.',
+        message: 'Failed to fetch zones from ESP32.',
         error: errorMessage,
-        zones 
       },
       { status: 500 }
     )

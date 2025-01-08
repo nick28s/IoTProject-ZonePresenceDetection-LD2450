@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { config } from '@/config'
+import { getConfig } from '@/config'
 
 let zones = [
   { x1: 1, y1: 1, x2: 4000, y2: 4000 },
@@ -7,11 +7,11 @@ let zones = [
   { x1: -4001, y1: 4001, x2: 4001, y2: 8000 }
 ]
 
-// Replace hardcoded URLs
-const ESP32_URL = `${config.esp32.apiBaseUrl}${config.esp32.endpoints.updateZones}`
-const ESP32_URL_GETZONES = `${config.esp32.apiBaseUrl}${config.esp32.endpoints.zones}`
+export async function GET(request: Request) {
+  const esp32Ip = request.headers.get('x-esp32-ip') || getConfig().esp32.defaultIp
+  const config = getConfig(esp32Ip)
+  const ESP32_URL_GETZONES = `${config.esp32.apiBaseUrl}${config.esp32.endpoints.zones}`
 
-export async function GET() {
   try {
     // Anfrage an den ESP32 senden
     const response = await fetch(ESP32_URL_GETZONES, {
@@ -47,6 +47,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const esp32Ip = request.headers.get('x-esp32-ip') || getConfig().esp32.defaultIp
+  const config = getConfig(esp32Ip)
+  const ESP32_URL = `${config.esp32.apiBaseUrl}${config.esp32.endpoints.updateZones}`
   const newZones = await request.json()
 
   // Ensure we only have up to 3 zones

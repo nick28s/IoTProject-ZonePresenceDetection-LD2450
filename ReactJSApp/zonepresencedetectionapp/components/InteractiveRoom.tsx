@@ -10,16 +10,62 @@ import { DetectedPoints } from './DetectedPoints'
 import { useWebSocket } from '@/hooks/useWebSocket'
 import { Zone } from '@/types'
 import { mapCoordinate } from '@/utils/coordinates'
-import { config } from '@/config'
+import { getConfig } from '@/config'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Trash2 } from 'lucide-react' // Add this import
 
 export function InteractiveRoomEsp32() {
   const [zones, setZones] = useState<Zone[]>([])
   const [isEditMode, setIsEditMode] = useState(false)
+  const [currentIp, setCurrentIp] = useState(getConfig().esp32.defaultIp)
+  const [customIp, setCustomIp] = useState('')
+  const [savedIps, setSavedIps] = useState<string[]>(() => {
+    const saved = localStorage.getItem('savedIps')
+    return saved ? JSON.parse(saved) : [getConfig().esp32.defaultIp]
+  })
   const roomRef = useRef<HTMLDivElement>(null)
   const [roomSize, setRoomSize] = useState({ width: 0, height: 0 })
+  const config = getConfig(currentIp)
   const colors = config.zones.colors
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected'>('disconnected')
   
   const { points, isConnected } = useWebSocket(config.esp32.webSocketUrl)
+
+  useEffect(() => {
+    localStorage.setItem('savedIps', JSON.stringify(savedIps))
+  }, [savedIps])
+
+  const handleIpChange = (value: string) => {
+    if (value === 'custom') {
+      setCurrentIp('custom')
+      return
+    }
+    setCurrentIp(value)
+  }
+
+  const handleCustomIpSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (customIp && /^(\d{1,3}\.){3}\d{1,3}$/.test(customIp)) {
+      setCurrentIp(customIp)
+      if (!savedIps.includes(customIp)) {
+        setSavedIps(prev => [...prev, customIp])
+      }
+      setCustomIp('')
+    }
+  }
+
+  const handleDeleteIp = (ipToDelete: string) => {
+    // Remove all event handlers, just handle the deletion
+    const updatedIps = savedIps.filter(ip => ip !== ipToDelete)
+    setSavedIps(updatedIps)
+    
+    if (currentIp === ipToDelete) {
+      const nextIp = updatedIps.length > 0 ? updatedIps[0] : 'custom'
+      setCurrentIp(nextIp)
+    }
+  }
 
   useEffect(() => {
     const updateRoomSize = () => {
@@ -39,7 +85,9 @@ export function InteractiveRoomEsp32() {
   useEffect(() => {
     const fetchZones = async () => {
       try {
-        const response = await fetch('/api/zones')
+        const response = await fetch('/api/zones', {
+          headers: { 'x-esp32-ip': currentIp }
+        })
         if (response.ok) {
           const data = await response.json()
           setZones(data.map((zone: Zone, index: number) => ({
@@ -47,14 +95,19 @@ export function InteractiveRoomEsp32() {
             id: index + 1, // Assign IDs 1, 2, 3
             color: colors[index % colors.length],
           })))
+          setConnectionStatus('connected')
+        } else {
+          throw new Error('Connection failed')
         }
       } catch (error) {
         console.error('Failed to fetch zones:', error)
+        setZones([]) // Clear zones on connection failure
+        setConnectionStatus('disconnected')
       }
     }
 
     fetchZones()
-  }, [])
+  }, [currentIp])
 
   const createNewZone = () => {
     if (roomRef.current && zones.length < 3) {
@@ -105,6 +158,7 @@ export function InteractiveRoomEsp32() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'x-esp32-ip': currentIp
           },
           body: JSON.stringify(esp32Zones),
         })
@@ -124,6 +178,7 @@ export function InteractiveRoomEsp32() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-esp32-ip': currentIp
         },
         body: JSON.stringify(esp32Zones),
       })
@@ -151,6 +206,60 @@ export function InteractiveRoomEsp32() {
   return (
     <div className="select-none flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <h1 className="text-2xl font-bold mb-4">Zonex Presence Detection App</h1>
+      
+      <div className="flex items-center space-x-2 mb-4">
+        {currentIp === 'custom' ? (
+          <form onSubmit={handleCustomIpSubmit} className="flex items-center space-x-2">
+            <Input
+              type="text"
+              placeholder="Enter IP address"
+              value={customIp}
+              onChange={(e) => setCustomIp(e.target.value)}
+              pattern="^(\d{1,3}\.){3}\d{1,3}$"
+              className="w-36"
+            />
+            <Button type="submit" size="sm">Add</Button>
+            <Button 
+              type="button" 
+              size="sm" 
+              variant="outline" 
+              onClick={() => setCurrentIp(getConfig().esp32.defaultIp)}
+            >
+              Cancel
+            </Button>
+          </form>
+        ) : (
+          <Select value={currentIp} onValueChange={handleIpChange}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Select IP" />
+            </SelectTrigger>
+            <SelectContent>
+              {savedIps.map(ip => (
+                <div key={ip} className="flex items-center justify-between px-2 py-1 hover:bg-accent">
+                  <SelectItem value={ip} className="flex-1">
+                    {ip}
+                  </SelectItem>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteIp(ip)}
+                    className="p-1 hover:text-red-500 focus:outline-none ml-2"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+              <SelectItem value="custom">Add Custom IP</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+        <div className={`ml-2 h-3 w-3 rounded-full ${
+          connectionStatus === 'connected' ? 'bg-green-500' : 'bg-red-500'
+        }`} />
+        <span className="text-sm text-gray-600">
+          {connectionStatus === 'connected' ? 'Connected' : 'Disconnected'}
+        </span>
+      </div>
+
       <div className="flex items-center space-x-2 mb-4">
         <Switch
           id="edit-mode"
@@ -180,24 +289,28 @@ export function InteractiveRoomEsp32() {
           <AnimatedWifiSignal />
         </div>
 
-        {zones.map(zone => (
-          <MoveableResizableZone 
-            key={zone.id} 
-            zone={zone} 
-            onResize={handleResize} 
-            onMove={handleMove}
-            onDelete={handleDelete}
-            isEditMode={isEditMode}
-            roomWidth={roomSize.width}
-            roomHeight={roomSize.height}
-          />
-        ))}
+        {connectionStatus === 'connected' && (
+          <>
+            {zones.map(zone => (
+              <MoveableResizableZone 
+                key={zone.id} 
+                zone={zone} 
+                onResize={handleResize} 
+                onMove={handleMove}
+                onDelete={handleDelete}
+                isEditMode={isEditMode}
+                roomWidth={roomSize.width}
+                roomHeight={roomSize.height}
+              />
+            ))}
 
-        <DetectedPoints 
-          points={points}
-          roomWidth={roomSize.width}
-          roomHeight={roomSize.height}
-        />
+            <DetectedPoints 
+              points={points}
+              roomWidth={roomSize.width}
+              roomHeight={roomSize.height}
+            />
+          </>
+        )}
       </div>
       <p className="mt-4 text-sm text-gray-600">
         {isEditMode

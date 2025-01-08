@@ -1,10 +1,11 @@
-const ESP32_IP = '192.168.178.145'
+const DEFAULT_ESP32_IP = '192.168.178.145'
 
-export const config = {
+export const getConfig = (ip: string = DEFAULT_ESP32_IP) => ({
   esp32: {
-    ip: ESP32_IP,
-    webSocketUrl: `ws://${ESP32_IP}/ws`,
-    apiBaseUrl: `http://${ESP32_IP}`,
+    ip,
+    defaultIp: DEFAULT_ESP32_IP,
+    webSocketUrl: `ws://${ip}/ws`,
+    apiBaseUrl: `http://${ip}`,
     endpoints: {
       zones: '/zones',
       updateZones: '/updateZones'
@@ -34,4 +35,6 @@ export const config = {
       wifiPulseInterval: 500 // ms
     }
   }
-}
+})
+
+export const config = getConfig()

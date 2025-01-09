@@ -172,7 +172,6 @@ void loop()
     setup_wifi();
   }
 
-  // Your code here
   last_target_data = "";
   if (ld2450.read() > 0)
   {
@@ -192,6 +191,7 @@ void loop()
         String jsonString;
         serializeJson(doc, jsonString);
         ws.textAll(jsonString); // Sende an alle verbundenen WebSocket-Clients
+        delay(100);
       }
     }
     else
@@ -215,6 +215,7 @@ void loop()
         String jsonString;
         serializeJson(doc, jsonString);
         ws.textAll(jsonString); // Sende an alle verbundenen WebSocket-Clients
+        delay(100);
 
         // Check if target is within any zone
         for (int j = 0; j < 3; j++)
@@ -246,4 +247,5 @@ void loop()
   }
 
   ws.cleanupClients(); // Ensure WebSocket clients are handled
+  
 }

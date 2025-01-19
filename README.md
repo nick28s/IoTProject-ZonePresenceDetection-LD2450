@@ -1,6 +1,5 @@
 # Zone Presence Detection System with HLK-LD2450 Radar
 
-![Project Banner](docs/images/banner.png)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![ESP32](https://img.shields.io/badge/ESP32-Ready-blue)
@@ -115,6 +114,14 @@ HLK-LD2450  |  ESP32-WROOM
 - Keep away from WiFi antennas
 
 ## ⚙️ Installation
+
+### Docker Setup
+Install from the command line:
+```bash
+docker pull ghcr.io/nick28s/iotproject-zonepresencedetection-ld2450:latest
+```
+
+or
 
 ### ESP32 Development Setup
 1. Install Visual Studio Code

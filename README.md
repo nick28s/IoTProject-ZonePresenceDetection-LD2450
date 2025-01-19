@@ -115,14 +115,6 @@ HLK-LD2450  |  ESP32-WROOM
 
 ## ⚙️ Installation
 
-### Docker Setup
-Install from the command line:
-```bash
-docker pull ghcr.io/nick28s/iotproject-zonepresencedetection-ld2450:latest
-```
-
-or
-
 ### ESP32 Development Setup
 1. Install Visual Studio Code
 2. Install PlatformIO Extension
@@ -139,6 +131,15 @@ or
 5. Upload firmware via PlatformIO
 
 ### Web Application Setup
+
+Use Docker:
+Install from the command line:
+```bash
+docker pull ghcr.io/nick28s/iotproject-zonepresencedetection-ld2450:latest
+```
+
+or
+
 1. Install Node.js (v16+)
 2. Navigate to web app directory:
    ```bash

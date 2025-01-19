@@ -214,7 +214,9 @@ void loop()
 
         String jsonString;
         serializeJson(doc, jsonString);
-        ws.textAll(jsonString); // Sende an alle verbundenen WebSocket-Clients
+        if (ws.availableForWriteAll()) {
+          ws.textAll(jsonString); // Sende an alle verbundenen WebSocket-Clients
+        }
         delay(100);
 
         // Check if target is within any zone

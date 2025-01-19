@@ -16,25 +16,47 @@ import { Input } from "@/components/ui/input"
 import { Trash2 } from 'lucide-react' // Add this import
 
 export function InteractiveRoomEsp32() {
+  const [mounted, setMounted] = useState(false)
   const [zones, setZones] = useState<Zone[]>([])
   const [isEditMode, setIsEditMode] = useState(false)
   const [currentIp, setCurrentIp] = useState(getConfig().esp32.defaultIp)
   const [customIp, setCustomIp] = useState('')
-  const [savedIps, setSavedIps] = useState<string[]>(() => {
+  const [savedIps, setSavedIps] = useState<string[]>([])  // Initialize empty
+
+  // Handle initial mount and localStorage load
+  useEffect(() => {
+    setMounted(true)
     const saved = localStorage.getItem('savedIps')
-    return saved ? JSON.parse(saved) : [getConfig().esp32.defaultIp]
-  })
+    if (saved) {
+      const parsedIps = JSON.parse(saved)
+      setSavedIps(parsedIps)
+      // Set current IP to first saved IP if available
+      if (parsedIps.length > 0) {
+        setCurrentIp(parsedIps[0])
+      }
+    } else {
+      // Initialize with default IP if no saved IPs
+      const defaultIp = getConfig().esp32.defaultIp
+      setSavedIps([defaultIp])
+      setCurrentIp(defaultIp)
+      localStorage.setItem('savedIps', JSON.stringify([defaultIp]))
+    }
+  }, [])
+
+  // Update localStorage whenever savedIps changes
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem('savedIps', JSON.stringify(savedIps))
+    }
+  }, [savedIps, mounted])
+
   const roomRef = useRef<HTMLDivElement>(null)
   const [roomSize, setRoomSize] = useState({ width: 0, height: 0 })
   const config = getConfig(currentIp)
   const colors = config.zones.colors
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected'>('disconnected')
   
-  const { points, isConnected } = useWebSocket(config.esp32.webSocketUrl)
-
-  useEffect(() => {
-    localStorage.setItem('savedIps', JSON.stringify(savedIps))
-  }, [savedIps])
+  const { points} = useWebSocket(config.esp32.webSocketUrl)
 
   const handleIpChange = (value: string) => {
     if (value === 'custom') {
@@ -189,19 +211,6 @@ export function InteractiveRoomEsp32() {
       console.error('Error updating zones:', error)
     }
   }
-
-  useEffect(() => {
-    const room = roomRef.current
-    if (room) {
-      const handleTouchStart = (e: TouchEvent) => {
-        // Add your touch start logic here
-      }
-      room.addEventListener('touchstart', handleTouchStart)
-      return () => {
-        room.removeEventListener('touchstart', handleTouchStart)
-      }
-    }
-  }, [isEditMode])
 
   return (
     <div className="select-none flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">

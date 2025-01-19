@@ -1,7 +1,7 @@
 import { Point } from '@/types'
 import { mapCoordinate } from '@/utils/coordinates'
 import { CircleUserRound } from 'lucide-react'
-import { config } from '@/config'
+
 
 interface DetectedPointsProps {
   points: Point[]

@@ -132,13 +132,15 @@ HLK-LD2450  |  ESP32-WROOM
 
 ### Web Application Setup
 
-Use Docker:
-Install from the command line:
+Use Docker and
+install from the command line:
 ```bash
 docker pull ghcr.io/nick28s/iotproject-zonepresencedetection-ld2450:latest
 ```
 
 or
+
+Install manually:
 
 1. Install Node.js (v16+)
 2. Navigate to web app directory:

@@ -8,7 +8,7 @@
 
 A IoT presence detection system combining  radar technology with modern web interface. Perfect for smart home automation, security systems, and occupancy monitoring.
 
-![alt text](/ui.png)
+![alt text](/ui.png) 
 
 ## 📋 Table of Contents
 - [Features](#-features)

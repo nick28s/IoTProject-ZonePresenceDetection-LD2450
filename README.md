@@ -6,7 +6,9 @@
 ![ESP32](https://img.shields.io/badge/ESP32-Ready-blue)
 ![React](https://img.shields.io/badge/React-18-61dafb)
 
-A sophisticated IoT presence detection system combining high-precision radar technology with modern web interfaces. Perfect for smart home automation, security systems, and occupancy monitoring.
+A IoT presence detection system combining  radar technology with modern web interface. Perfect for smart home automation, security systems, and occupancy monitoring.
+
+![alt text](/ui.png)
 
 ## 📋 Table of Contents
 - [Features](#-features)

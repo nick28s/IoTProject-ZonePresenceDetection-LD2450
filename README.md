@@ -138,7 +138,7 @@ install from the command line:
 docker pull ghcr.io/nick28s/iotproject-zonepresencedetection-ld2450:latest
 ```
 ```bash
-docker run -p 3000:3000 --name zoneapp ghcr.io/nick28s/iotproject-zonepresencedetection-ld2450-arm64:latest 
+docker run -p 3000:3000 --name zoneapp ghcr.io/nick28s/iotproject-zonepresencedetection-ld2450:latest 
 ```
 
 or

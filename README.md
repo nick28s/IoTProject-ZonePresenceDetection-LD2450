@@ -7,6 +7,7 @@
 ![React](https://img.shields.io/badge/React-18-61dafb)
 
 A IoT presence detection system combining  radar technology with modern web interface. Perfect for smart home automation, security systems, and occupancy monitoring.
+[hackster.io Article](https://www.hackster.io/nick28s/zone-presence-detection-system-c07540)
 
 ![alt text](/ui.png) 
 

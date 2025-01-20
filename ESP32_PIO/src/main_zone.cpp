@@ -247,6 +247,16 @@ void loop()
       Serial.println(last_target_data);
     }
   }
+  else{ 
+      Serial.println("No data received from sensor");
+      Serial2.end();
+      Serial.println("Serial2 closed");
+      delay(1500);
+      ld2450.setNumberOfTargets(3);
+      ld2450.begin(Serial2, false);
+      Serial.println("Serial2 opened");
+      delay(1500);
+  }
 
   ws.cleanupClients(); // Ensure WebSocket clients are handled
   

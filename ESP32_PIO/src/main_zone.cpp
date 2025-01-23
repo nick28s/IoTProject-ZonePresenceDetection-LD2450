@@ -205,11 +205,11 @@ void loop()
       {
         const LD2450::RadarTarget target = ld2450.getTarget(i);
         // Add target information to the string
-        last_target_data += "TARGET ID=" + String(i + 1) + " X=" + String((0 - target.x)) + "mm, Y=" + String(target.y) + "mm, SPEED=" + String(target.speed) + "cm/s, RESOLUTION=" + String(target.resolution) + "mm, DISTANCE=" + String(target.distance) + "mm, VALID=" + String(target.valid) + "\n";
+        last_target_data += "TARGET ID=" + String(i + 1) + " X=" + String((target.x)) + "mm, Y=" + String(target.y) + "mm, SPEED=" + String(target.speed) + "cm/s, RESOLUTION=" + String(target.resolution) + "mm, DISTANCE=" + String(target.distance) + "mm, VALID=" + String(target.valid) + "\n";
         // Send positions via WebSocket
         StaticJsonDocument<128> doc;
         doc["id"] = i + 1;
-        doc["x"] = 0 - target.x;
+        doc["x"] = target.x;
         doc["y"] = target.y;
 
         String jsonString;
@@ -222,7 +222,7 @@ void loop()
         // Check if target is within any zone
         for (int j = 0; j < 3; j++)
         {
-          if ((0 - target.x) >= zones[j].x1 && (0 - target.x) <= zones[j].x2 && target.y >= zones[j].y1 && target.y <= zones[j].y2)
+          if ((target.x) >= zones[j].x1 && (target.x) <= zones[j].x2 && target.y >= zones[j].y1 && target.y <= zones[j].y2)
           {
             Serial.println("TARGET ID=" + String(i + 1) + " is within ZONE " + String(j + 1));
             switch (j + 1)

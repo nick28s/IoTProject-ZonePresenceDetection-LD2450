@@ -120,7 +120,7 @@ HLK-LD2450  |  ESP32-WROOM
 2. Install PlatformIO Extension
 3. Clone repository:
    ```bash
-   git clone https://github.com/yourusername/ZonePresenceDetection.git
+   git clone https://github.com/nick28s/IoTProject-ZonePresenceDetection-LD2450.git
    ```
 4. Configure WiFi credentials:
    ```cpp

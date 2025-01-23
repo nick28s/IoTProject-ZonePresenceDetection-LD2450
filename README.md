@@ -1,7 +1,7 @@
 # Zone Presence Detection System with HLK-LD2450 Radar
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
+![License](https://img.shields.io/badge/license-GPLv3-green.svg)
 ![ESP32](https://img.shields.io/badge/ESP32-Ready-blue)
 ![React](https://img.shields.io/badge/React-18-61dafb)
 

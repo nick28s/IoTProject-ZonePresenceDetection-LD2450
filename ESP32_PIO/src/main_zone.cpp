@@ -15,9 +15,9 @@ LD2450 ld2450;
 
 boolean zone1, zone2, zone3;
 
-// Erstelle einen AsyncWebServer auf Port 80
+// Create an AsyncWebServer on port 80
 AsyncWebServer server(80);
-AsyncWebSocket ws("/ws"); // WebSocket auf "/ws" einrichten
+AsyncWebSocket ws("/ws"); // Set up WebSocket on "/ws"
 
 // Define zones as rectangles with (x1, y1)LeftDownCorner and (x2, y2)RightUpCorner
 struct Zone
@@ -62,7 +62,7 @@ void setup_wifi()
   Serial.println(WiFi.localIP());
 }
 
-// WebSocket-Ereignisbehandlung
+// WebSocket event handling
 void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
 {
   if (type == WS_EVT_CONNECT)
@@ -94,35 +94,35 @@ void setup()
 
   setup_wifi();
 
-  // WebSocket initialisieren
+  // Initialize WebSocket
   ws.onEvent(onWebSocketEvent);
   server.addHandler(&ws);
 
   // Debugging log
   Serial.println("WebSocket server initialized.");
 
-  // POST-Endpunkt einrichten
+  // Set up POST endpoint
   server.on("/updateZones", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
             {
-      // JSON-Daten verarbeiten
+      // Process JSON data
       StaticJsonDocument<512> doc;
       DeserializationError error = deserializeJson(doc, data, len);
 
       if (error) {
-        Serial.print("JSON-Parsing fehlgeschlagen: ");
+        Serial.print("JSON parsing failed: ");
         Serial.println(error.c_str());
         request->send(400, "application/json", "{\"status\":\"error\",\"message\":\"Invalid JSON\"}");
         return;
       }
 
-      // JSON-Daten in das Zone-Struct schreiben
+      // Write JSON data into the Zone struct
       for (int i = 0; i < 3; i++) {
-        zones[i].x1 = doc[i]["x1"] | zones[i].x1; // Standardwert bei fehlendem JSON-Wert
+        zones[i].x1 = doc[i]["x1"] | zones[i].x1; // Default value if JSON value is missing
         zones[i].y1 = doc[i]["y1"] | zones[i].y1;
         zones[i].x2 = doc[i]["x2"] | zones[i].x2;
         zones[i].y2 = doc[i]["y2"] | zones[i].y2;
 
-        // Debug-Ausgabe
+        // Debug output
         Serial.print("Zone ");
         Serial.print(i + 1);
         Serial.print(": x1=");
@@ -135,7 +135,7 @@ void setup()
         Serial.println(zones[i].y2);
       }
 
-      // Erfolgsmeldung senden
+      // Send success message
       request->send(200, "application/json", "{\"status\":\"success\",\"message\":\"Zones updated\"}"); });
 
   // Handle GET request for zones
@@ -159,9 +159,9 @@ void setup()
     // Send JSON response
     request->send(200, "application/json", jsonResponse); });
 
-  // Server starten
+  // Start server
   server.begin();
-  Serial.println("HTTP-Server gestartet.");
+  Serial.println("HTTP server started.");
 }
 
 void loop()
@@ -190,8 +190,8 @@ void loop()
 
         String jsonString;
         serializeJson(doc, jsonString);
-        ws.textAll(jsonString); // Sende an alle verbundenen WebSocket-Clients
-        delay(100);
+        ws.textAll(jsonString); // Send to all connected WebSocket clients
+        //delay(100);
       }
     }
     else
@@ -206,7 +206,7 @@ void loop()
         const LD2450::RadarTarget target = ld2450.getTarget(i);
         // Add target information to the string
         last_target_data += "TARGET ID=" + String(i + 1) + " X=" + String((0 - target.x)) + "mm, Y=" + String(target.y) + "mm, SPEED=" + String(target.speed) + "cm/s, RESOLUTION=" + String(target.resolution) + "mm, DISTANCE=" + String(target.distance) + "mm, VALID=" + String(target.valid) + "\n";
-        // Sende Positionen via WebSocket
+        // Send positions via WebSocket
         StaticJsonDocument<128> doc;
         doc["id"] = i + 1;
         doc["x"] = 0 - target.x;
@@ -215,9 +215,9 @@ void loop()
         String jsonString;
         serializeJson(doc, jsonString);
         if (ws.availableForWriteAll()) {
-          ws.textAll(jsonString); // Sende an alle verbundenen WebSocket-Clients
+          ws.textAll(jsonString); // Send to all connected WebSocket clients
         }
-        delay(100);
+        //delay(100);
 
         // Check if target is within any zone
         for (int j = 0; j < 3; j++)
